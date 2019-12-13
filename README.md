@@ -1,4 +1,4 @@
-# appengine/guestbook-cloud-datastore
+# A sample project to demonstrate multitenancy on google appengine in Java
 
 <a href="https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/GoogleCloudPlatform/java-docs-samples&page=editor&open_in_editor=appengine-java8/guestbook-cloud-datastore/README.md">
 <img alt="Open in Cloud Shell" src ="http://gstatic.com/cloudssh/images/open-btn.png"></a>
