@@ -52,7 +52,7 @@ public class EnterpriseAdmin {
     }
 
     public EnterpriseAdmin(Entity entity) {
-      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(key.getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
+      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
       key = entity.hasKey() ? entity.getKey() : null;
       firstName = entity.contains("firstName") ? entity.getString("firstName") : null;
       middleName = entity.contains("middleName") ? entity.getString("middleName") : null;

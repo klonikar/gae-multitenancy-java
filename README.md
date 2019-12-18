@@ -22,8 +22,11 @@ Then start the [Cloud Datastore Emulator](https://cloud.google.com/datastore/doc
 Finally, in a new shell, [set the Datastore Emulator environmental variables](https://cloud.google.com/datastore/docs/tools/datastore-emulator#setting_environment_variables)
 and run
 
-    mvn clean appengine:run
+    #mvn clean appengine:run ==> Does not work with emulator as it keeps throwing the following exception 
+    #                            Exception when handling request: INVALID_ARGUMENT: "no_app_id" is an invalid project id.
 
+    $(google-cloud-sdk-dir)/bin/java_dev_appserver.sh --application=YOUR_PROJECT_ID_HERE target/gae-multitenancy-j8-1.0-SNAPSHOT
+    NOTE: Either set the google-cloud-sdk-dir env variable or use the directory of the cloud sdk install.
 ## Deploying
 
     mvn clean appengine:deploy

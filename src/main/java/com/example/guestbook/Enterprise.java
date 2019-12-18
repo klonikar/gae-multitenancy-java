@@ -39,78 +39,50 @@ import static com.google.cloud.datastore.StructuredQuery.PropertyFilter.hasAnces
 public class Enterprise {
     private KeyFactory keyFactory;
     private Key key;
-    private String firstName;
-    private String middleName;
-    private String lastName;
-    private String employeeCode;
-    private int salutation;
-    private String companyName;
-    private int companyId; 
+    private String name;
+    private String address;
+    private Timestamp createdDate; 
 
     public Enterprise() {
         keyFactory = getKeyFactory(getClass());
     }
 
     public Enterprise(Entity entity) {
-      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(key.getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
+      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
       key = entity.hasKey() ? entity.getKey() : null;
-      firstName = entity.contains("firstName") ? entity.getString("firstName") : null;
-      middleName = entity.contains("middleName") ? entity.getString("middleName") : null;
-      lastName = entity.contains("lastName") ? entity.getString("lastName") : null;
-      employeeCode = entity.contains("employeeCode") ? entity.getString("employeeCode") : null;
-      salutation = entity.contains("salutation") ? (int) entity.getLong("salutation") : -1;
-      companyName = entity.contains("companyName") ? entity.getString("companyName") : null;
-      companyId = entity.contains("companyId") ? (int) entity.getLong("companyId") : -1;
+      name = entity.contains("name") ? entity.getString("name") : null;
+      address = entity.contains("address") ? entity.getString("address") : null;
 
-      // date = entity.contains("date") ? entity.getTimestamp("date").toSqlTimestamp() : null;
+      createdDate = entity.contains("createdDate") ? entity.getTimestamp("createdDate") : null;
     }
 
     public void save(String namespace) {
-      if (key == null) {
-        keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
-        key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
-      }
+      keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
+      key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
 
-      if (firstName != null)
-        builder.set("firstName", firstName);
-      if (middleName != null)
-        builder.set("middleName", middleName);
-      if(lastName != null)
-          builder.set("lastName", lastName);
-      if(employeeCode != null)
-          builder.set("employeeCode", employeeCode);
-      if(companyName != null)
-          builder.set("companyName", companyName);
+      if (name != null)
+        builder.set("name", name);
+      if (address != null)
+        builder.set("address", address);
 
-      builder.set("salutation", salutation);
-      builder.set("companyId", companyId);
-
-      //builder.set("date", Timestamp.of(date));
+      builder.set("createdDate", createdDate);
 
       getDatastore().put(builder.build());
     }
 
     public Key getKey() { return key; }
     public long getId() { return key != null ? key.getId() : -1; }
-    public String getFirstName() { return firstName; }
-    public String getMiddleName() { return middleName; }
-    public String getLastName() { return lastName; }
-    public String getEmployeeCode() { return employeeCode; }
-    public String getCompanyName() { return companyName; }
-    public int getSalutation() { return salutation; }
-    public int getCompanyId() { return companyId; }
+    public String getName() { return name; }
+    public String getAddress() { return address; }
+    public String getCreatedDate() { return createdDate.toString(); }
 
     public Enterprise setKey(Key v) { this.key = v; return this; }
     public Enterprise setId(long v) { this.key = keyFactory.newKey(v); return this; } 
-    public Enterprise setFirstName(String v) { this.firstName = v; return this; }
-    public Enterprise setMiddleName(String v) { this.middleName = v; return this; }
-    public Enterprise setLastName(String v) { this.lastName = v; return this; }
-    public Enterprise setEmployeeCode(String v) { this.employeeCode = v; return this; }
-    public Enterprise setSalutation(int v) { this.salutation = v; return this; }
-    public Enterprise setCompanyName(String v) { this.companyName = v; return this; }
-    public Enterprise setCompanyId(int v) { this.companyId = v; return this; }
+    public Enterprise setName(String v) { this.name = v; return this; }
+    public Enterprise setAddress(String v) { this.address = v; return this; }
+    public Enterprise setCreatedDate(String v) { this.createdDate = Timestamp.parseTimestamp(v); return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();
@@ -122,7 +94,7 @@ public class Enterprise {
 
     public static void main(String[] args) throws IOException {
         //read json file data to String
-        byte[] jsonData = Files.readAllBytes(Paths.get("employee.txt"));
+        byte[] jsonData = Files.readAllBytes(Paths.get("employee.json"));
         
         //convert json string to object
         Enterprise emp = Utils.objectMapper.readValue(jsonData, Enterprise.class);
@@ -134,12 +106,16 @@ public class Enterprise {
         
         //writing to console, can write to any output stream such as file
         System.out.println("Enterprise JSON is " + emp1.toString());
- 
+
+        List<Enterprise> emps = new ArrayList<>();
+        emps.add(createEnterprise());
+        emps.add(createEnterprise());
+        System.out.println("Enterprises JSON is " + Utils.objectMapper.writeValueAsString(emps));
     } 
 
     public static Enterprise createEnterprise() {
         Enterprise ret = new Enterprise();
-        ret.setId(10).setFirstName("Narendra").setLastName("Modi");
+        ret.setId(10).setName("abc").setAddress("Bangalore").setCreatedDate("2019-10-31T13:04:00Z");
         return ret;
     }
 }

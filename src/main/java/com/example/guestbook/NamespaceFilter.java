@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @WebFilter(filterName = "NamespaceFilter",
            urlPatterns = "/*",
-           initParams = @WebInitParam(name = "namespace-strategy", value = "SERVER_NAME")
+           initParams = @WebInitParam(name = "namespace-strategy", value = "EMPTY")
           )
 public class NamespaceFilter implements Filter {
   
@@ -68,7 +68,7 @@ public class NamespaceFilter implements Filter {
 
   public static HttpSession getSession() {
       HttpServletRequest request = localRequest.get();
-      return (request != null) ? request.getSession() : null;
+      return (request != null) ? request.getSession(false) : null;
   }
 
   public static String getNamespace() {
