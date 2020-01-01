@@ -36,6 +36,8 @@ import javax.servlet.annotation.WebServlet;
 public class EnterpriseServlet extends HttpServlet {
 
   // Process the HTTP POST of the form
+  // Test with json payload: {"name": "c2", "address":"Bangalore", "createdDate": "2019-08-31T13:04:00Z", "userName": "globalAdmin", "password": "abcdefgh", "firstName":"F", "middleName":"M", "lastName": "L", "employeeCode":"GA", "salutation": -1, "companyName": "c2", "companyId": 1234}
+  // Set headers: Content-Type: application/json and if testing locally, ServerName: GLOBAL_ADMIN_SERVER_NAME property in appengine-web.xml.
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     UserService userService = UserServiceFactory.getUserService();
@@ -43,25 +45,19 @@ public class EnterpriseServlet extends HttpServlet {
 
     HttpSession session = req.getSession(false);
     String host = req.getHeader("Host");
-    String serverName = req.getServerName();
+    String serverName = Utils.getServerName(req);
     String pathInfo = req.getPathInfo();
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
     // TODO: Instead of hardcoding, put the global admin server name and global admin user names in datastore
     //if(! serverName.equals("payroll1.appspot.com") || user == null || !user.getEmail().equals("lonikar@gmail.com")) {
-    if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
-       // Production
-      if(! serverName.equals("payroll1.appspot.com") ) {
+    if(serverName == null || ! serverName.equals(System.getProperty("GLOBAL_ADMIN_SERVER_NAME")) ) {
         // This request allowed only for global admin service
         resp.setStatus(401);
         writer.append("{\"message\": \"Unauthorized global admin access\"}");
         writer.flush();
         
         return;
-      }
-     } else {
-      // Local development server
-      // which is: SystemProperty.Environment.Value.Development
     }
 
     String reqData = Utils.loadRequestData(req);
@@ -72,6 +68,9 @@ public class EnterpriseServlet extends HttpServlet {
     Enterprise ent = Utils.objectMapper.readValue(reqData, Enterprise.class);
     ent.save(ent.getName()); // Save to namespace defined by company name
     ent.save(""); // Save to default namespace as well.
+    EnterpriseAdmin admin = Utils.objectMapper.readValue(reqData, EnterpriseAdmin.class);
+    admin.save(ent.getName());
+
     resp.setStatus(200);
     writer.append(ent.toString());
     writer.flush();

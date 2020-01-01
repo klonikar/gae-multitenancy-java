@@ -7,5 +7,9 @@
 
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    <property name="GLOBAL_ADMIN_SERVER_NAME" value="payroll1.appspot.com" />
   </system-properties>
+  <env-variables>
+  	<!--env-var name="GLOBAL_ADMIN_SERVER_NAME" value="payroll1.appspot.com" /-->
+  </env-variables>
 </appengine-web-app>

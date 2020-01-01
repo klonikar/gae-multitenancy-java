@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import com.google.appengine.api.utils.SystemProperty;
+
 public class Utils {
   //create ObjectMapper instance
   public static ObjectMapper objectMapper = new ObjectMapper();
@@ -35,6 +37,11 @@ public class Utils {
       // JSONObject jObj = new JSONObject(sb.toString());
     }
     return sb.toString();
+  }
+
+  public static String getServerName(HttpServletRequest req) {
+    String ret = SystemProperty.environment.value() == SystemProperty.Environment.Value.Production ? req.getServerName() : req.getHeader("ServerName");
+    return ret;
   }
 }
 

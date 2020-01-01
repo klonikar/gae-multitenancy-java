@@ -46,6 +46,8 @@ public class EnterpriseAdmin {
     private int salutation;
     private String companyName;
     private int companyId; 
+    private String userName;
+    private String password;
 
     public EnterpriseAdmin() {
         keyFactory = getKeyFactory(getClass());
@@ -61,6 +63,9 @@ public class EnterpriseAdmin {
       salutation = entity.contains("salutation") ? (int) entity.getLong("salutation") : -1;
       companyName = entity.contains("companyName") ? entity.getString("companyName") : null;
       companyId = entity.contains("companyId") ? (int) entity.getLong("companyId") : -1;
+      userName = entity.contains("userName") ? entity.getString("userName") : null;
+      password = entity.contains("password") ? entity.getString("password") : null;
+
 
       // date = entity.contains("date") ? entity.getTimestamp("date").toSqlTimestamp() : null;
     }
@@ -82,8 +87,15 @@ public class EnterpriseAdmin {
       if(companyName != null)
           builder.set("companyName", companyName);
 
+      if(userName != null)
+          builder.set("userName", userName);
+
+      if(password != null)
+          builder.set("password", password);
+
       builder.set("salutation", salutation);
       builder.set("companyId", companyId);
+
 
       //builder.set("date", Timestamp.of(date));
 
@@ -99,6 +111,8 @@ public class EnterpriseAdmin {
     public String getCompanyName() { return companyName; }
     public int getSalutation() { return salutation; }
     public int getCompanyId() { return companyId; }
+    public String getUserName() { return userName; }
+    public String getPassword() { return password; }
 
     public EnterpriseAdmin setKey(Key v) { this.key = v; return this; }
     public EnterpriseAdmin setId(long v) { this.key = keyFactory.newKey(v); return this; } 
@@ -109,6 +123,8 @@ public class EnterpriseAdmin {
     public EnterpriseAdmin setSalutation(int v) { this.salutation = v; return this; }
     public EnterpriseAdmin setCompanyName(String v) { this.companyName = v; return this; }
     public EnterpriseAdmin setCompanyId(int v) { this.companyId = v; return this; }
+    public EnterpriseAdmin setUserName(String v) { this.userName = v; return this; }
+    public EnterpriseAdmin setPassword(String v) { this.password = v; return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();
@@ -137,7 +153,7 @@ public class EnterpriseAdmin {
 
     public static EnterpriseAdmin createEnterpriseAdmin() {
         EnterpriseAdmin ret = new EnterpriseAdmin();
-        ret.setId(10).setFirstName("Narendra").setLastName("Modi");
+        ret.setId(10).setFirstName("Narendra").setLastName("Modi").setUserName("globalAdmin");
         return ret;
     }
 }

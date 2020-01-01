@@ -46,6 +46,8 @@ public class Employee {
     private int salutation;
     private String companyName;
     private int companyId; 
+    private String userName;
+    private String password;
 
     public Employee() {
         keyFactory = getKeyFactory(getClass());
@@ -61,6 +63,8 @@ public class Employee {
       salutation = entity.contains("salutation") ? (int) entity.getLong("salutation") : -1;
       companyName = entity.contains("companyName") ? entity.getString("companyName") : null;
       companyId = entity.contains("companyId") ? (int) entity.getLong("companyId") : -1;
+      userName = entity.contains("userName") ? entity.getString("userName") : null;
+      password = entity.contains("password") ? entity.getString("password") : null;
 
       // date = entity.contains("date") ? entity.getTimestamp("date").toSqlTimestamp() : null;
     }
@@ -82,6 +86,12 @@ public class Employee {
       if(companyName != null)
           builder.set("companyName", companyName);
 
+      if(userName != null)
+          builder.set("userName", userName);
+
+      if(password != null)
+          builder.set("password", password);
+
       builder.set("salutation", salutation);
       builder.set("companyId", companyId);
 
@@ -99,6 +109,8 @@ public class Employee {
     public String getCompanyName() { return companyName; }
     public int getSalutation() { return salutation; }
     public int getCompanyId() { return companyId; }
+    public String getUserName() { return userName; }
+    public String getPassword() { return password; }
 
     public Employee setKey(Key v) { this.key = v; return this; }
     public Employee setId(long v) { this.key = keyFactory.newKey(v); return this; } 
@@ -109,6 +121,8 @@ public class Employee {
     public Employee setSalutation(int v) { this.salutation = v; return this; }
     public Employee setCompanyName(String v) { this.companyName = v; return this; }
     public Employee setCompanyId(int v) { this.companyId = v; return this; }
+    public Employee setUserName(String v) { this.userName = v; return this; }
+    public Employee setPassword(String v) { this.password = v; return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();
