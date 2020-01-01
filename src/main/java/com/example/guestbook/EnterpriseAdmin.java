@@ -66,10 +66,8 @@ public class EnterpriseAdmin {
     }
 
     public void save(String namespace) {
-      if (key == null) {
-        keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
-        key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
-      }
+      keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
+      key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
 
