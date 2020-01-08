@@ -44,11 +44,11 @@ public class Enterprise {
     private Timestamp createdDate; 
 
     public Enterprise() {
-        keyFactory = getKeyFactory(getClass());
+        keyFactory = getKeyFactory(getClass().getSimpleName());
     }
 
     public Enterprise(Entity entity) {
-      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
+      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass().getSimpleName());
       key = entity.hasKey() ? entity.getKey() : null;
       name = entity.contains("name") ? entity.getString("name") : null;
       address = entity.contains("address") ? entity.getString("address") : null;
@@ -57,7 +57,11 @@ public class Enterprise {
     }
 
     public void save(String namespace) {
-      keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
+        save(namespace, getClass().getSimpleName());
+    }
+
+    public void save(String namespace, String entityName) {
+      keyFactory = getKeyFactoryWithNamespace(entityName, namespace);
       key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
@@ -83,6 +87,7 @@ public class Enterprise {
     public Enterprise setName(String v) { this.name = v; return this; }
     public Enterprise setAddress(String v) { this.address = v; return this; }
     public Enterprise setCreatedDate(String v) { this.createdDate = Timestamp.parseTimestamp(v); return this; }
+    public Enterprise setCreatedDate(Timestamp v) { this.createdDate = v; return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();

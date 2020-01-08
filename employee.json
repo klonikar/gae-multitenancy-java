@@ -1,5 +1,6 @@
 {"firstName": "F1", "middleName": "M1", "lastName": "L1", "employeeCode": "EC1", "salutation": 1, "companyName": "c1",  "companyId": 10, "unusedProperty": "abcd", "unusedPropertyInt": 10,
 "name": "ABC",
 "address": "London",
-"createdDate": "2019-10-31T13:04:00Z"}
+"createdDate": "2019-10-31T13:04:00Z",
+"admin": true}
 

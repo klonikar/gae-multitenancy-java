@@ -48,13 +48,15 @@ public class Employee {
     private int companyId; 
     private String userName;
     private String password;
+    private Timestamp createdDate;
+    private boolean admin;
 
     public Employee() {
-        keyFactory = getKeyFactory(getClass());
+        keyFactory = getKeyFactory(getClass().getSimpleName());
     }
 
     public Employee(Entity entity) {
-      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(key.getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
+      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass().getSimpleName());
       key = entity.hasKey() ? entity.getKey() : null;
       firstName = entity.contains("firstName") ? entity.getString("firstName") : null;
       middleName = entity.contains("middleName") ? entity.getString("middleName") : null;
@@ -65,12 +67,18 @@ public class Employee {
       companyId = entity.contains("companyId") ? (int) entity.getLong("companyId") : -1;
       userName = entity.contains("userName") ? entity.getString("userName") : null;
       password = entity.contains("password") ? entity.getString("password") : null;
+      createdDate = entity.contains("createdDate") ? entity.getTimestamp("createdDate") : null;
+      admin = entity.contains("admin") ? entity.getBoolean("admin") : false;
 
       // date = entity.contains("date") ? entity.getTimestamp("date").toSqlTimestamp() : null;
     }
 
     public void save(String namespace) {
-      keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
+        save(namespace, getClass().getSimpleName());
+    }
+
+    public void save(String namespace, String entityName) {
+      keyFactory = getKeyFactoryWithNamespace(entityName, namespace);
       key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
@@ -94,6 +102,8 @@ public class Employee {
 
       builder.set("salutation", salutation);
       builder.set("companyId", companyId);
+      builder.set("createdDate", createdDate);
+      builder.set("admin", admin);
 
       //builder.set("date", Timestamp.of(date));
 
@@ -111,6 +121,8 @@ public class Employee {
     public int getCompanyId() { return companyId; }
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
+    public String getCreatedDate() { return createdDate.toString(); }
+    public boolean isAdmin() { return admin; }
 
     public Employee setKey(Key v) { this.key = v; return this; }
     public Employee setId(long v) { this.key = keyFactory.newKey(v); return this; } 
@@ -123,6 +135,9 @@ public class Employee {
     public Employee setCompanyId(int v) { this.companyId = v; return this; }
     public Employee setUserName(String v) { this.userName = v; return this; }
     public Employee setPassword(String v) { this.password = v; return this; }
+    public Employee setCreatedDate(String v) { this.createdDate = Timestamp.parseTimestamp(v); return this; }
+    public Employee setCreatedDate(Timestamp v) { this.createdDate = v; return this; }
+    public Employee setAdmin(boolean v) { this.admin = v; return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();
@@ -134,7 +149,7 @@ public class Employee {
 
     public static void main(String[] args) throws IOException {
         //read json file data to String
-        byte[] jsonData = Files.readAllBytes(Paths.get("employee.txt"));
+        byte[] jsonData = Files.readAllBytes(Paths.get("employee.json"));
         
         //convert json string to object
         Employee emp = Utils.objectMapper.readValue(jsonData, Employee.class);
@@ -151,7 +166,7 @@ public class Employee {
 
     public static Employee createEmployee() {
         Employee ret = new Employee();
-        ret.setId(10).setFirstName("Narendra").setLastName("Modi");
+        ret.setId(10).setFirstName("Narendra").setLastName("Modi").setCreatedDate("2020-01-09T13:04:00Z");
         return ret;
     }
 }

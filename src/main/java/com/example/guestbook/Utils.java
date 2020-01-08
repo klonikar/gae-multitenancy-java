@@ -23,6 +23,7 @@ public class Utils {
       //configure Object mapper for pretty print
       objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      //objectMapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
 
   }
 

@@ -48,13 +48,14 @@ public class EnterpriseAdmin {
     private int companyId; 
     private String userName;
     private String password;
+    private Timestamp createdDate; 
 
     public EnterpriseAdmin() {
-        keyFactory = getKeyFactory(getClass());
+        keyFactory = getKeyFactory(getClass().getSimpleName());
     }
 
     public EnterpriseAdmin(Entity entity) {
-      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass());
+      keyFactory = entity.hasKey() ? getDatastore().newKeyFactory().setNamespace(entity.getKey().getNamespace()).setKind(this.getClass().getSimpleName()) : getKeyFactory(this.getClass().getSimpleName());
       key = entity.hasKey() ? entity.getKey() : null;
       firstName = entity.contains("firstName") ? entity.getString("firstName") : null;
       middleName = entity.contains("middleName") ? entity.getString("middleName") : null;
@@ -65,13 +66,17 @@ public class EnterpriseAdmin {
       companyId = entity.contains("companyId") ? (int) entity.getLong("companyId") : -1;
       userName = entity.contains("userName") ? entity.getString("userName") : null;
       password = entity.contains("password") ? entity.getString("password") : null;
-
+      createdDate = entity.contains("createdDate") ? entity.getTimestamp("createdDate") : null;
 
       // date = entity.contains("date") ? entity.getTimestamp("date").toSqlTimestamp() : null;
     }
 
     public void save(String namespace) {
-      keyFactory = getKeyFactoryWithNamespace(getClass(), namespace);
+        save(namespace, getClass().getSimpleName());
+    }
+
+    public void save(String namespace, String entityName) {
+      keyFactory = getKeyFactoryWithNamespace(entityName, namespace);
       key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
@@ -95,7 +100,7 @@ public class EnterpriseAdmin {
 
       builder.set("salutation", salutation);
       builder.set("companyId", companyId);
-
+      builder.set("createdDate", createdDate);
 
       //builder.set("date", Timestamp.of(date));
 
@@ -113,6 +118,7 @@ public class EnterpriseAdmin {
     public int getCompanyId() { return companyId; }
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
+    public String getCreatedDate() { return createdDate.toString(); }
 
     public EnterpriseAdmin setKey(Key v) { this.key = v; return this; }
     public EnterpriseAdmin setId(long v) { this.key = keyFactory.newKey(v); return this; } 
@@ -125,6 +131,8 @@ public class EnterpriseAdmin {
     public EnterpriseAdmin setCompanyId(int v) { this.companyId = v; return this; }
     public EnterpriseAdmin setUserName(String v) { this.userName = v; return this; }
     public EnterpriseAdmin setPassword(String v) { this.password = v; return this; }
+    public EnterpriseAdmin setCreatedDate(String v) { this.createdDate = Timestamp.parseTimestamp(v); return this; }
+    public EnterpriseAdmin setCreatedDate(Timestamp v) { this.createdDate = v; return this; }
 
     public String toString() {
         StringWriter ret = new StringWriter();
@@ -136,7 +144,7 @@ public class EnterpriseAdmin {
 
     public static void main(String[] args) throws IOException {
         //read json file data to String
-        byte[] jsonData = Files.readAllBytes(Paths.get("employee.txt"));
+        byte[] jsonData = Files.readAllBytes(Paths.get("employee.json"));
         
         //convert json string to object
         EnterpriseAdmin emp = Utils.objectMapper.readValue(jsonData, EnterpriseAdmin.class);

@@ -40,18 +40,18 @@ public class Persistence {
     Persistence.datastore.set(datastore);
   }
 
-  public static KeyFactory getKeyFactory(Class<?> c) {
+  public static KeyFactory getKeyFactory(String entityName) {
     try {
-        return getDatastore().newKeyFactory().setNamespace(NamespaceFilter.getNamespace()).setKind(c.getSimpleName());
+        return getDatastore().newKeyFactory().setNamespace(NamespaceFilter.getNamespace()).setKind(entityName);
     }
     catch(Error err) {
         System.err.println("error occured: " + err.getMessage());
-        return getDatastore().newKeyFactory().setKind(c.getSimpleName());
+        return getDatastore().newKeyFactory().setKind(entityName);
     }
   }
 
-  public static KeyFactory getKeyFactoryWithNamespace(Class<?> c, String namespace) {
-    return getDatastore().newKeyFactory().setNamespace(namespace).setKind(c.getSimpleName());
+  public static KeyFactory getKeyFactoryWithNamespace(String entityName, String namespace) {
+    return getDatastore().newKeyFactory().setNamespace(namespace).setKind(entityName);
   }
 
 }

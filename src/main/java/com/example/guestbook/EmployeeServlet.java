@@ -16,7 +16,6 @@ import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.Timestamp;
-import com.google.appengine.api.utils.SystemProperty;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,12 +33,14 @@ import static com.example.guestbook.Persistence.getDatastore;
 //[START all]
 import javax.servlet.annotation.WebServlet;
 
-@WebServlet(name = "enterprise", urlPatterns={"/api/v1/enterprise/*"} /*, loadOnStartup=1*/)
-public class EnterpriseServlet extends HttpServlet {
+@WebServlet(name = "employee", urlPatterns={"/api/v1/employee/*"} /*, loadOnStartup=2*/)
+public class EmployeeServlet extends HttpServlet {
 
   // Process the HTTP POST of the form
-  // Test with json payload: {"name": "c2", "address":"Bangalore", "userName": "globalAdmin", "password": "abcdefgh", "firstName":"F", "middleName":"M", "lastName": "L", "employeeCode":"GA", "salutation": -1, "companyName": "c2", "companyId": 1234}
-  // To create a globalAdmin in test environment, use URL http://localhost:8080/api/v1/enterprise/?globalAdmin=true
+  // TODO: remove companyName from json payload. Take it from EnterpriseAdmin login cookies/session
+  // Test with json payload: {"companyName": "c2", "userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
+  // Test with json payload: {"admin": true, companyName": "c2", "userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
+
   // Set headers: Content-Type: application/json and if testing locally, ServerName: GLOBAL_ADMIN_SERVER_NAME property in appengine-web.xml.
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -52,36 +53,22 @@ public class EnterpriseServlet extends HttpServlet {
     String pathInfo = req.getPathInfo();
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
-    // TODO: Instead of hardcoding, put the global admin server name and global admin user names in datastore
-    // TODO: Verify that the user is global admin
-    //if(! serverName.equals("payroll1.appspot.com") || user == null || !user.getEmail().equals("lonikar@gmail.com")) {
-    if(serverName == null || ! serverName.equals(System.getProperty("GLOBAL_ADMIN_SERVER_NAME")) ) {
-        // This request allowed only for global admin service
-        resp.setStatus(401);
-        writer.append("{\"message\": \"Unauthorized global admin access\"}");
-        writer.flush();
-        
-        return;
-    }
 
+    // TODO: Validate that invoking user is EnterpriseAdmin from login cookies/session
     String reqData = Utils.loadRequestData(req);
     //convert json string to object
     //Map<String, String> jsonMap = Utils.objectMapper.readValue(reqData, new TypeReference<Map<String, String>>() {} );
     //String content = jsonMap.get("content");
     //session.setAttribute("userName", user.getEmail());
-    Enterprise ent = Utils.objectMapper.readValue(reqData, Enterprise.class).setCreatedDate(Timestamp.now());
-    ent.save(ent.getName()); // Save to namespace defined by company name
-    ent.save(""); // Save to default namespace as well.
-    EnterpriseAdmin admin = Utils.objectMapper.readValue(reqData, EnterpriseAdmin.class).setCreatedDate(Timestamp.now());
-    admin.save(ent.getName());
-    // Create Global Admin only for non-production environments.
-    // For production environment, create GlobalAdmin entity using datastore console, entity management.
-    if(SystemProperty.environment.value() != SystemProperty.Environment.Value.Production && req.getParameter("globalAdmin").equals("true")) {
-        admin.save("", "GlobalAdmin");
+    Employee emp = Utils.objectMapper.readValue(reqData, Employee.class).setCreatedDate(Timestamp.now());
+    if(emp.isAdmin()) {
+        EnterpriseAdmin admin = Utils.objectMapper.readValue(reqData, EnterpriseAdmin.class).setCreatedDate(Timestamp.now());
+        admin.save(emp.getCompanyName());
     }
+    emp.save(emp.getCompanyName()); // TODO: Take it from EnterpriseAdmin login cookies/session. Save to namespace defined by company name
 
     resp.setStatus(200);
-    writer.append(ent.toString());
+    writer.append(emp.toString());
     writer.flush();
   }
 
@@ -94,16 +81,17 @@ public class EnterpriseServlet extends HttpServlet {
     resp.setStatus(200);
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
-    // TODO: Verify that the user is global admin
+    String namespace = req.getParameter("companyName"); // TODO: Get it from login cookies/session
 
-    if(uri.endsWith("/api/v1/enterprise") || uri.endsWith("/api/v1/enterprise/")) { // Get all
-        EntityQuery query = Query.newEntityQueryBuilder().setNamespace("").setKind("Enterprise")
+    if(uri.endsWith("/api/v1/employee") || uri.endsWith("/api/v1/employee/")) { // Get all
+        // TODO: Verify that the user is enterprise admin. If not, send only logged in user's data
+        EntityQuery query = Query.newEntityQueryBuilder().setNamespace(namespace).setKind("Employee")
                             // .setFilter(PropertyFilter.eq(property, value))
                             .build();
         QueryResults<Entity> results = getDatastore().run(query);
-        List<Enterprise> entities = new ArrayList<>();
+        List<Employee> entities = new ArrayList<>();
         while (results.hasNext()) {
-            Enterprise result = new Enterprise(results.next());
+            Employee result = new Employee(results.next());
             entities.add(result);
         }
         System.out.println("Retrieved entities: " + entities.size());
@@ -111,12 +99,13 @@ public class EnterpriseServlet extends HttpServlet {
     }
     else {
         String id = uri.substring(uri.lastIndexOf("/")+1);
-        Enterprise obj = null;
+        // TODO: Verify that the user id is same as currently logged in user id.
+        Employee obj = null;
         try {
             Long keyVal = Long.valueOf(id);
-            Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Enterprise.class.getSimpleName(), "").newKey(keyVal));
+            Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(keyVal));
             if(entObj != null) {
-                obj = new Enterprise(entObj);
+                obj = new Employee(entObj);
                 writer.append(obj.toString());
             }
             else {
