@@ -80,7 +80,7 @@ public class Enterprise {
     public long getId() { return key != null ? key.getId() : -1; }
     public String getName() { return name; }
     public String getAddress() { return address; }
-    public String getCreatedDate() { return createdDate.toString(); }
+    public String getCreatedDate() { return createdDate != null ? createdDate.toString() : ""; }
 
     public Enterprise setKey(Key v) { this.key = v; return this; }
     public Enterprise setId(long v) { this.key = keyFactory.newKey(v); return this; } 

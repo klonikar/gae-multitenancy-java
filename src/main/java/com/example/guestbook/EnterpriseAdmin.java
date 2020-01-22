@@ -118,7 +118,7 @@ public class EnterpriseAdmin {
     public int getCompanyId() { return companyId; }
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
-    public String getCreatedDate() { return createdDate.toString(); }
+    public String getCreatedDate() { return createdDate != null ? createdDate.toString() : ""; }
 
     public EnterpriseAdmin setKey(Key v) { this.key = v; return this; }
     public EnterpriseAdmin setId(long v) { this.key = keyFactory.newKey(v); return this; } 

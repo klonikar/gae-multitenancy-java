@@ -121,7 +121,7 @@ public class Employee {
     public int getCompanyId() { return companyId; }
     public String getUserName() { return userName; }
     public String getPassword() { return password; }
-    public String getCreatedDate() { return createdDate.toString(); }
+    public String getCreatedDate() { return createdDate != null ? createdDate.toString() : ""; }
     public boolean isAdmin() { return admin; }
 
     public Employee setKey(Key v) { this.key = v; return this; }

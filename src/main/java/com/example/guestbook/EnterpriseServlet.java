@@ -46,16 +46,14 @@ public class EnterpriseServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser(); // Find out who the user is.
 
-    HttpSession session = req.getSession(false);
+    HttpSession session = req.getSession(true);
     String host = req.getHeader("Host");
     String serverName = Utils.getServerName(req);
     String pathInfo = req.getPathInfo();
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
-    // TODO: Instead of hardcoding, put the global admin server name and global admin user names in datastore
-    // TODO: Verify that the user is global admin
-    //if(! serverName.equals("payroll1.appspot.com") || user == null || !user.getEmail().equals("lonikar@gmail.com")) {
-    if(serverName == null || ! serverName.equals(System.getProperty("GLOBAL_ADMIN_SERVER_NAME")) ) {
+
+    if(!"true".equals(session.getAttribute("globalAdmin")) || serverName == null || ! serverName.equals(System.getProperty("GLOBAL_ADMIN_SERVER_NAME")) ) {
         // This request allowed only for global admin service
         resp.setStatus(401);
         writer.append("{\"message\": \"Unauthorized global admin access\"}");
@@ -89,12 +87,23 @@ public class EnterpriseServlet extends HttpServlet {
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     //UserService userService = UserServiceFactory.getUserService();
     //User user = userService.getCurrentUser();
+
+    HttpSession session = req.getSession(true);
     String uri = req.getRequestURI();
     String hostname = req.getServerName();
+    String serverName = Utils.getServerName(req);
     resp.setStatus(200);
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
-    // TODO: Verify that the user is global admin
+
+    if(!"true".equals(session.getAttribute("globalAdmin")) || serverName == null || ! serverName.equals(System.getProperty("GLOBAL_ADMIN_SERVER_NAME")) ) {
+        // This request allowed only for global admin service
+        resp.setStatus(401);
+        writer.append("{\"message\": \"Unauthorized global admin access\"}");
+        writer.flush();
+        
+        return;
+    }
 
     if(uri.endsWith("/api/v1/enterprise") || uri.endsWith("/api/v1/enterprise/")) { // Get all
         EntityQuery query = Query.newEntityQueryBuilder().setNamespace("").setKind("Enterprise")

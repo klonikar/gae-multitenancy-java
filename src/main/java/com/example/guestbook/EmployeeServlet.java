@@ -15,6 +15,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.Timestamp;
 
 import java.io.IOException;
@@ -37,9 +38,8 @@ import javax.servlet.annotation.WebServlet;
 public class EmployeeServlet extends HttpServlet {
 
   // Process the HTTP POST of the form
-  // TODO: remove companyName from json payload. Take it from EnterpriseAdmin login cookies/session
-  // Test with json payload: {"companyName": "c2", "userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
-  // Test with json payload: {"admin": true, companyName": "c2", "userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
+  // Test with json payload: {"userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
+  // Test with json payload: {"admin": true, "userName": "f1m1l1Admin", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
 
   // Set headers: Content-Type: application/json and if testing locally, ServerName: GLOBAL_ADMIN_SERVER_NAME property in appengine-web.xml.
   @Override
@@ -47,25 +47,34 @@ public class EmployeeServlet extends HttpServlet {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser(); // Find out who the user is.
 
-    HttpSession session = req.getSession(false);
+    HttpSession session = req.getSession(true);
     String host = req.getHeader("Host");
     String serverName = Utils.getServerName(req);
     String pathInfo = req.getPathInfo();
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
+    String companyName = (String) session.getAttribute("companyName");
 
-    // TODO: Validate that invoking user is EnterpriseAdmin from login cookies/session
+    if(!"true".equals(session.getAttribute("EnterpriseAdmin")) ) {
+        // This request allowed only for enterprise admin service
+        resp.setStatus(401);
+        writer.append("{\"message\": \"Unauthorized enterprise admin access\"}");
+        writer.flush();
+        
+        return;
+    }
+
     String reqData = Utils.loadRequestData(req);
     //convert json string to object
     //Map<String, String> jsonMap = Utils.objectMapper.readValue(reqData, new TypeReference<Map<String, String>>() {} );
     //String content = jsonMap.get("content");
     //session.setAttribute("userName", user.getEmail());
-    Employee emp = Utils.objectMapper.readValue(reqData, Employee.class).setCreatedDate(Timestamp.now());
+    Employee emp = Utils.objectMapper.readValue(reqData, Employee.class).setCreatedDate(Timestamp.now()).setCompanyName(companyName);
     if(emp.isAdmin()) {
-        EnterpriseAdmin admin = Utils.objectMapper.readValue(reqData, EnterpriseAdmin.class).setCreatedDate(Timestamp.now());
-        admin.save(emp.getCompanyName());
+        EnterpriseAdmin admin = Utils.objectMapper.readValue(reqData, EnterpriseAdmin.class).setCreatedDate(Timestamp.now()).setCompanyName(companyName);
+        admin.save(companyName); // Save to namespace defined by company name
     }
-    emp.save(emp.getCompanyName()); // TODO: Take it from EnterpriseAdmin login cookies/session. Save to namespace defined by company name
+    emp.save(companyName); // Save to namespace defined by company name
 
     resp.setStatus(200);
     writer.append(emp.toString());
@@ -76,18 +85,28 @@ public class EmployeeServlet extends HttpServlet {
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     //UserService userService = UserServiceFactory.getUserService();
     //User user = userService.getCurrentUser();
+
+    HttpSession session = req.getSession(true);
     String uri = req.getRequestURI();
     String hostname = req.getServerName();
     resp.setStatus(200);
     resp.setContentType("application/json");
     PrintWriter writer = resp.getWriter();
-    String namespace = req.getParameter("companyName"); // TODO: Get it from login cookies/session
+    String namespace = (String) session.getAttribute("companyName");
 
     if(uri.endsWith("/api/v1/employee") || uri.endsWith("/api/v1/employee/")) { // Get all
-        // TODO: Verify that the user is enterprise admin. If not, send only logged in user's data
-        EntityQuery query = Query.newEntityQueryBuilder().setNamespace(namespace).setKind("Employee")
-                            // .setFilter(PropertyFilter.eq(property, value))
+        EntityQuery query = null;
+        if("true".equals(session.getAttribute("EnterpriseAdmin")) ) { // Get all for EnterpriseAdmin
+            query = Query.newEntityQueryBuilder().setNamespace(namespace).setKind("Employee")
                             .build();
+        }
+        else { // Get current user for non-EnterpriseAdmin users
+            String userNameFilter = (String) session.getAttribute("userName");
+            query = Query.newEntityQueryBuilder().setNamespace(namespace).setKind("Employee")
+                            .setFilter(PropertyFilter.eq("userName", userNameFilter))
+                            .build();
+        }
+
         QueryResults<Entity> results = getDatastore().run(query);
         List<Employee> entities = new ArrayList<>();
         while (results.hasNext()) {
@@ -99,12 +118,12 @@ public class EmployeeServlet extends HttpServlet {
     }
     else {
         String id = uri.substring(uri.lastIndexOf("/")+1);
-        // TODO: Verify that the user id is same as currently logged in user id.
         Employee obj = null;
         try {
             Long keyVal = Long.valueOf(id);
             Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(keyVal));
-            if(entObj != null) {
+            // For non-EnterpriseAdmin users, Verify that the user id is same as currently logged in user id.
+            if(entObj != null && ("true".equals(session.getAttribute("EnterpriseAdmin")) || entObj.contains("userName") && entObj.getString("userName").equals(session.getAttribute("userName")))) {
                 obj = new Employee(entObj);
                 writer.append(obj.toString());
             }
