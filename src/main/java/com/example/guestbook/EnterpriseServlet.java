@@ -38,7 +38,7 @@ import javax.servlet.annotation.WebServlet;
 public class EnterpriseServlet extends HttpServlet {
 
   // Process the HTTP POST of the form
-  // Test with json payload: {"name": "c2", "address":"Bangalore", "userName": "globalAdmin", "password": "abcdefgh", "firstName":"F", "middleName":"M", "lastName": "L", "employeeCode":"GA", "salutation": -1, "companyName": "c2", "companyId": 1234}
+  // Test with json payload: {"name": "c2", "address":"Bangalore", "userName": "enterpriseAdmin", "password": "abcdefgh", "firstName":"F", "middleName":"M", "lastName": "L", "employeeCode":"GA", "salutation": -1, "companyName": "c2", "companyId": 1234}
   // To create a globalAdmin in test environment, use URL http://localhost:8080/api/v1/enterprise/?globalAdmin=true
   // Set headers: Content-Type: application/json and if testing locally, ServerName: GLOBAL_ADMIN_SERVER_NAME property in appengine-web.xml.
   @Override
@@ -74,7 +74,7 @@ public class EnterpriseServlet extends HttpServlet {
     admin.save(ent.getName());
     // Create Global Admin only for non-production environments.
     // For production environment, create GlobalAdmin entity using datastore console, entity management.
-    if(SystemProperty.environment.value() != SystemProperty.Environment.Value.Production && req.getParameter("globalAdmin").equals("true")) {
+    if(SystemProperty.environment.value() != SystemProperty.Environment.Value.Production && req.getParameter("globalAdmin") != null && req.getParameter("globalAdmin").equals("true")) {
         admin.save("", "GlobalAdmin");
     }
 

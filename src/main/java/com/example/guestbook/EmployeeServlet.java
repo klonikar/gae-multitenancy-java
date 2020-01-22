@@ -110,7 +110,7 @@ public class EmployeeServlet extends HttpServlet {
         QueryResults<Entity> results = getDatastore().run(query);
         List<Employee> entities = new ArrayList<>();
         while (results.hasNext()) {
-            Employee result = new Employee(results.next());
+            Employee result = new Employee(results.next()).setPassword("");
             entities.add(result);
         }
         System.out.println("Retrieved entities: " + entities.size());
@@ -124,7 +124,7 @@ public class EmployeeServlet extends HttpServlet {
             Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(keyVal));
             // For non-EnterpriseAdmin users, Verify that the user id is same as currently logged in user id.
             if(entObj != null && ("true".equals(session.getAttribute("EnterpriseAdmin")) || entObj.contains("userName") && entObj.getString("userName").equals(session.getAttribute("userName")))) {
-                obj = new Employee(entObj);
+                obj = new Employee(entObj).setPassword("");
                 writer.append(obj.toString());
             }
             else {
