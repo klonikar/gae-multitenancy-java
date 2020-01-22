@@ -119,22 +119,24 @@ public class EmployeeServlet extends HttpServlet {
     else {
         String id = uri.substring(uri.lastIndexOf("/")+1);
         Employee obj = null;
+        Entity entObj = null;
         try {
             Long keyVal = Long.valueOf(id);
-            Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(keyVal));
-            // For non-EnterpriseAdmin users, Verify that the user id is same as currently logged in user id.
-            if(entObj != null && ("true".equals(session.getAttribute("EnterpriseAdmin")) || entObj.contains("userName") && entObj.getString("userName").equals(session.getAttribute("userName")))) {
-                obj = new Employee(entObj).setPassword("");
-                writer.append(obj.toString());
-            }
-            else {
-                resp.setStatus(404);
-                writer.append("{\"error\":\"no object obtained for key: " + keyVal + "\"}");
-            }
+            entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(keyVal));
         }
         catch(Exception ex) {
-            ex.printStackTrace();
+            entObj = getDatastore().get(getKeyFactoryWithNamespace(Employee.class.getSimpleName(), namespace).newKey(id));
         }
+        // For non-EnterpriseAdmin users, Verify that the user id is same as currently logged in user id.
+        if(entObj != null && ("true".equals(session.getAttribute("EnterpriseAdmin")) || entObj.contains("userName") && entObj.getString("userName").equals(session.getAttribute("userName")))) {
+            obj = new Employee(entObj).setPassword("");
+            writer.append(obj.toString());
+        }
+        else {
+            resp.setStatus(404);
+            writer.append("{\"error\":\"no object obtained for key: " + id + "\"}");
+        }
+
     }
 
     writer.flush();

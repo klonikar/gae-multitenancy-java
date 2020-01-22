@@ -121,21 +121,23 @@ public class EnterpriseServlet extends HttpServlet {
     else {
         String id = uri.substring(uri.lastIndexOf("/")+1);
         Enterprise obj = null;
+        Entity entObj = null;
         try {
             Long keyVal = Long.valueOf(id);
-            Entity entObj = getDatastore().get(getKeyFactoryWithNamespace(Enterprise.class.getSimpleName(), "").newKey(keyVal));
-            if(entObj != null) {
-                obj = new Enterprise(entObj);
-                writer.append(obj.toString());
-            }
-            else {
-                resp.setStatus(404);
-                writer.append("{\"error\":\"no object obtained for key: " + keyVal + "\"}");
-            }
+            entObj = getDatastore().get(getKeyFactoryWithNamespace(Enterprise.class.getSimpleName(), "").newKey(keyVal));
         }
         catch(Exception ex) {
-            ex.printStackTrace();
+            entObj = getDatastore().get(getKeyFactoryWithNamespace(Enterprise.class.getSimpleName(), "").newKey(id));
         }
+        if(entObj != null) {
+            obj = new Enterprise(entObj);
+            writer.append(obj.toString());
+        }
+        else {
+            resp.setStatus(404);
+            writer.append("{\"error\":\"no object obtained for key: " + id + "\"}");
+        }
+
     }
 
     writer.flush();

@@ -79,7 +79,8 @@ public class Employee {
 
     public void save(String namespace, String entityName) {
       keyFactory = getKeyFactoryWithNamespace(entityName, namespace);
-      key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
+      //key = getDatastore().allocateId(keyFactory.newKey()); // Give this object a unique ID
+      key = keyFactory.newKey(userName);
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
 
@@ -111,7 +112,7 @@ public class Employee {
     }
 
     public Key getKey() { return key; }
-    public long getId() { return key != null ? key.getId() : -1; }
+    public long getId() { return key != null && key.hasId() ? key.getId() : -1; }
     public String getFirstName() { return firstName; }
     public String getMiddleName() { return middleName; }
     public String getLastName() { return lastName; }

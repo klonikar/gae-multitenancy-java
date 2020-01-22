@@ -62,7 +62,8 @@ public class Enterprise {
 
     public void save(String namespace, String entityName) {
       keyFactory = getKeyFactoryWithNamespace(entityName, namespace);
-      key = getDatastore().allocateId(keyFactory.newKey()); // Give this greeting a unique ID
+      //key = getDatastore().allocateId(keyFactory.newKey()); // Give this object a unique ID
+      key = keyFactory.newKey(name);
 
       FullEntity.Builder<Key> builder = FullEntity.newBuilder(key);
 
@@ -77,7 +78,7 @@ public class Enterprise {
     }
 
     public Key getKey() { return key; }
-    public long getId() { return key != null ? key.getId() : -1; }
+    public long getId() { return key != null && key.hasId() ? key.getId() : -1; }
     public String getName() { return name; }
     public String getAddress() { return address; }
     public String getCreatedDate() { return createdDate != null ? createdDate.toString() : ""; }
