@@ -47,7 +47,7 @@ function invokePostAPI(url, postData, isAsync, asyncHandler) {
     return xmlhttp;
 }
 
-function invokeGetAPI(url, isAsync, asyncHandler, noWaitMessage) {
+function invokeGetAPI(url, isAsync, asyncHandler) {
     var xmlhttp = createCORSRequest("GET", url, isAsync);
     if(isAsync && /MSIE/i.test(navigator.userAgent)) {
         xmlhttp.onload = asyncHandler;
