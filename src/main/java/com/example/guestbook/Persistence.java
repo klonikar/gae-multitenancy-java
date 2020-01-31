@@ -16,6 +16,8 @@
 
 package com.example.guestbook;
 
+import java.util.logging.Logger;
+
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.KeyFactory;
@@ -23,6 +25,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 //[START all]
 public class Persistence {
+
+  private static final Logger logger = Logger.getLogger(Persistence.class.getSimpleName());
 
   private static AtomicReference<Datastore> datastore = new AtomicReference<>();
 
@@ -45,7 +49,7 @@ public class Persistence {
         return getDatastore().newKeyFactory().setNamespace(NamespaceFilter.getNamespace()).setKind(entityName);
     }
     catch(Error err) {
-        System.err.println("error occured: " + err.getMessage());
+        logger.warning("error occured: " + err.getMessage());
         return getDatastore().newKeyFactory().setKind(entityName);
     }
   }

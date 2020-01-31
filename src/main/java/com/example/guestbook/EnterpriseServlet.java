@@ -18,6 +18,7 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.Timestamp;
 import com.google.appengine.api.utils.SystemProperty;
 
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
@@ -37,6 +38,7 @@ import javax.servlet.annotation.WebServlet;
 @WebServlet(name = "enterprise", urlPatterns={"/api/v1/enterprise/*"} /*, loadOnStartup=1*/)
 public class EnterpriseServlet extends HttpServlet {
 
+  private static final Logger logger = Logger.getLogger(EnterpriseServlet.class.getSimpleName());
   // Process the HTTP POST of the form
   // Test with json payload: {"name": "c2", "address":"Bangalore", "userName": "enterpriseAdmin", "password": "abcdefgh", "firstName":"F", "middleName":"M", "lastName": "L", "employeeCode":"GA", "salutation": -1, "companyName": "c2", "companyId": 1234}
   // To create a globalAdmin in test environment, use URL http://localhost:8080/api/v1/enterprise/?globalAdmin=true
@@ -115,7 +117,7 @@ public class EnterpriseServlet extends HttpServlet {
             Enterprise result = new Enterprise(results.next());
             entities.add(result);
         }
-        System.out.println("Retrieved entities: " + entities.size());
+        logger.info("Retrieved entities: " + entities.size());
         Utils.objectMapper.writeValue(writer, entities);
     }
     else {

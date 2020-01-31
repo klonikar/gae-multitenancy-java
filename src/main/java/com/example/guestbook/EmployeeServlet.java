@@ -18,6 +18,7 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.Timestamp;
 
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
@@ -37,6 +38,7 @@ import javax.servlet.annotation.WebServlet;
 @WebServlet(name = "employee", urlPatterns={"/api/v1/employee/*"} /*, loadOnStartup=2*/)
 public class EmployeeServlet extends HttpServlet {
 
+  private static final Logger logger = Logger.getLogger(EmployeeServlet.class.getSimpleName());
   // Process the HTTP POST of the form
   // Test with json payload: {"userName": "f1m1l1", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
   // Test with json payload: {"admin": true, "userName": "f1m1l1Admin", "password": "abcdefgh", "firstName":"F1", "middleName":"M1", "lastName": "L1", "employeeCode":"GA", "salutation": -2}
@@ -113,7 +115,7 @@ public class EmployeeServlet extends HttpServlet {
             Employee result = new Employee(results.next()).setPassword("");
             entities.add(result);
         }
-        System.out.println("Retrieved entities: " + entities.size());
+        logger.info("Retrieved entities: " + entities.size());
         Utils.objectMapper.writeValue(writer, entities);
     }
     else {

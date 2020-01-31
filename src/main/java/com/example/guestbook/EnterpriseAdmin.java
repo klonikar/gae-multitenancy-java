@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,9 @@ import static com.google.cloud.datastore.StructuredQuery.PropertyFilter.hasAnces
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EnterpriseAdmin {
+
+    private static final Logger logger = Logger.getLogger(EnterpriseAdmin.class.getSimpleName());
+
     private KeyFactory keyFactory;
     private Key key;
     private String firstName;
@@ -150,13 +154,13 @@ public class EnterpriseAdmin {
         //convert json string to object
         EnterpriseAdmin emp = Utils.objectMapper.readValue(jsonData, EnterpriseAdmin.class);
         
-        System.out.println("EnterpriseAdmin Object: " + emp);
+        logger.info("EnterpriseAdmin Object: " + emp);
         
         //convert Object to json string
         EnterpriseAdmin emp1 = createEnterpriseAdmin();
         
         //writing to console, can write to any output stream such as file
-        System.out.println("EnterpriseAdmin JSON is " + emp1.toString());
+        logger.info("EnterpriseAdmin JSON is " + emp1.toString());
  
     } 
 

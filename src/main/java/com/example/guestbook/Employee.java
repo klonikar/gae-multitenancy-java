@@ -13,6 +13,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,9 @@ import static com.google.cloud.datastore.StructuredQuery.PropertyFilter.hasAnces
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Employee {
+
+    private static final Logger logger = Logger.getLogger(Employee.class.getSimpleName());
+
     private KeyFactory keyFactory;
     private Key key;
     private String firstName;
@@ -155,13 +159,13 @@ public class Employee {
         //convert json string to object
         Employee emp = Utils.objectMapper.readValue(jsonData, Employee.class);
         
-        System.out.println("Employee Object: " + emp);
+        logger.info("Employee Object: " + emp);
         
         //convert Object to json string
         Employee emp1 = createEmployee();
         
         //writing to console, can write to any output stream such as file
-        System.out.println("Employee JSON is " + emp1.toString());
+        logger.info("Employee JSON is " + emp1.toString());
  
     } 
 
