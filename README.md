@@ -3,7 +3,7 @@
 <a href="https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/GoogleCloudPlatform/java-docs-samples&page=editor&open_in_editor=appengine-java8/guestbook-cloud-datastore/README.md">
 <img alt="Open in Cloud Shell" src ="http://gstatic.com/cloudssh/images/open-btn.png"></a>
 
-An App Engine sample project based on guestbook using Java, Maven, and the Cloud Datastore API via
+An App Engine project based on sample guestbook project by Google AppEngine using Java, Maven, and the Cloud Datastore API via
 [google-cloud-java](https://github.com/GoogleCloudPlatform/google-cloud-java).
 
 Please ask questions on [StackOverflow](http://stackoverflow.com/questions/tagged/google-app-engine).
@@ -27,10 +27,11 @@ and run
 
     $(google-cloud-sdk-dir)/bin/java_dev_appserver.sh --application=YOUR_PROJECT_ID_HERE target/gae-multitenancy-j8-1.0-SNAPSHOT
     NOTE: Either set the google-cloud-sdk-dir env variable or use the directory of the cloud sdk install.
-    Testing on local project: [index.html](http://localhost:8080/index.html).
+    
+Testing on local project: [index.html](http://localhost:8080/index.html).
 ## Deploying
 
     mvn clean appengine:deploy
 
-    Testing on deployed project: [index.html](https://payroll1.appspot.com/index.html).
+Testing on deployed project: [index.html](https://payroll1.appspot.com/index.html).
 
