@@ -28,10 +28,10 @@ and run
     $(google-cloud-sdk-dir)/bin/java_dev_appserver.sh --application=YOUR_PROJECT_ID_HERE target/gae-multitenancy-j8-1.0-SNAPSHOT
     NOTE: Either set the google-cloud-sdk-dir env variable or use the directory of the cloud sdk install.
     
-Testing on local project: [index.html](http://localhost:8080/index.html).
+Testing on local project: [test_apis.html](http://localhost:8080/test_apis.html).
 ## Deploying
 
     mvn clean appengine:deploy
 
-Testing on deployed project: [index.html](https://payroll1.appspot.com/index.html).
+Testing on deployed project: [test_apis.html](https://payroll1.appspot.com/test_apis.html).
 
